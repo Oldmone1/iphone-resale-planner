@@ -1,0 +1,1699 @@
+﻿<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#20282b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="iPhone Planner">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>iPhone Resale Planner</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f2ea;
+        --ink: #1d2328;
+        --muted: #64707a;
+        --line: #d9d2c4;
+        --panel: #fffdf8;
+        --panel-2: #edf5f2;
+        --accent: #116a64;
+        --accent-2: #c84f31;
+        --good: #28784f;
+        --warn: #ab6a10;
+        --shadow: 0 18px 45px rgba(38, 37, 31, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        letter-spacing: 0;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+      }
+
+      .sidebar {
+        padding: 24px 18px;
+        background: #20282b;
+        color: #f8f3e8;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 44px;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: #e7c26b;
+        color: #1b2023;
+        font-weight: 800;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 17px;
+      }
+
+      .brand span {
+        display: block;
+        color: #c8d1d2;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .model-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .model-button {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: transparent;
+        color: #f8f3e8;
+        text-align: left;
+        padding: 11px 12px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .model-button[aria-current="true"] {
+        background: #f8f3e8;
+        color: #20282b;
+        border-color: #f8f3e8;
+      }
+
+      .model-button small {
+        color: inherit;
+        opacity: 0.68;
+      }
+
+      .side-note {
+        margin-top: auto;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        color: #d5dddd;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      main {
+        min-width: 0;
+        padding: 28px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.08;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin: 8px 0 0;
+        max-width: 720px;
+        line-height: 1.45;
+      }
+
+      .primary-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        border-radius: 8px;
+        min-height: 38px;
+        padding: 8px 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .btn.primary {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn.danger {
+        border-color: #e2b5a8;
+        color: #9c321d;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .model-board {
+        margin-bottom: 20px;
+      }
+
+      .model-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .model-card {
+        min-height: 74px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--ink);
+        padding: 13px;
+        text-align: left;
+        display: grid;
+        align-content: space-between;
+        box-shadow: 0 8px 18px rgba(38, 37, 31, 0.06);
+      }
+
+      .model-card[aria-current="true"] {
+        border-color: var(--accent);
+        background: #edf5f2;
+        box-shadow: inset 0 0 0 1px var(--accent);
+      }
+
+      .model-card strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .model-card span {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-head {
+        padding: 18px 18px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .panel-body {
+        padding: 18px;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(130px, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        min-height: 38px;
+        padding: 8px 10px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 82px;
+        resize: vertical;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(17, 106, 100, 0.14);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      td {
+        font-size: 14px;
+      }
+
+      .price {
+        font-weight: 800;
+        color: var(--accent);
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        color: #285b55;
+        font-size: 12px;
+        margin: 0 4px 4px 0;
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+
+      .icon-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fffaf0;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 20px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .form-grid .wide {
+        grid-column: 1 / -1;
+      }
+
+      .empty {
+        padding: 28px 16px;
+        text-align: center;
+        color: var(--muted);
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        background: #fffaf0;
+      }
+
+      .profit-line {
+        display: grid;
+        gap: 10px;
+      }
+
+      .profit-line output {
+        display: block;
+        padding: 14px;
+        border-radius: 8px;
+        background: #edf5f2;
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: 850;
+      }
+
+      .footer-note {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 1060px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          padding-top: 18px;
+        }
+
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .model-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .model-list {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 16px;
+        }
+
+        h1 {
+          font-size: 25px;
+        }
+
+        .sidebar {
+          gap: 14px;
+        }
+
+        .topbar,
+        .panel-head {
+          display: grid;
+        }
+
+        .primary-actions {
+          justify-content: stretch;
+        }
+
+        .btn {
+          justify-content: center;
+        }
+
+        .filters,
+        .form-grid,
+        .summary-grid,
+        .model-list,
+        .model-grid {
+          grid-template-columns: 1fr;
+        }
+
+        table,
+        thead,
+        tbody,
+        tr,
+        th,
+        td {
+          display: block;
+        }
+
+        thead {
+          display: none;
+        }
+
+        tr {
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          margin-bottom: 10px;
+          background: white;
+        }
+
+        td {
+          border: 0;
+          padding: 9px 12px;
+        }
+
+        td::before {
+          content: attr(data-label);
+          display: block;
+          color: var(--muted);
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+
+        .row-actions {
+          justify-content: start;
+        }
+      }
+
+      /* Current flow: model list first, memory list second. */
+      .app {
+        display: block;
+      }
+
+      .sidebar,
+      .topbar,
+      .dashboard,
+      .model-board .panel-head {
+        display: none;
+      }
+
+      main {
+        min-height: 100vh;
+        padding: 18px;
+      }
+
+      .model-board,
+      .memory-board {
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .model-board .panel-body,
+      .memory-board .panel-body {
+        padding: 0;
+      }
+
+      .model-grid,
+      .memory-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .model-card,
+      .memory-card {
+        min-height: 58px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--ink);
+        padding: 13px;
+        text-align: left;
+        display: grid;
+        align-content: center;
+        box-shadow: none;
+      }
+
+      .memory-card strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .model-card span,
+      .memory-card span {
+        display: none;
+      }
+
+      .memory-board {
+        display: none;
+      }
+
+      body[data-screen="memory"] .model-board {
+        display: none;
+      }
+
+      body[data-screen="memory"] .memory-board {
+        display: block;
+      }
+
+      .memory-topbar {
+        max-width: 980px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .memory-title {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .back-button {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        border-radius: 8px;
+        min-height: 38px;
+        padding: 8px 12px;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 14px;
+        }
+
+        .model-grid,
+        .memory-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .memory-title {
+          font-size: 21px;
+        }
+      }
+
+      .model-popup {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: none;
+        place-items: end center;
+        padding: 18px;
+        background: rgba(29, 35, 40, 0.42);
+      }
+
+      .model-popup[aria-hidden="false"] {
+        display: grid;
+      }
+
+      .model-popup-panel {
+        width: min(520px, 100%);
+        max-height: 76vh;
+        overflow: auto;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 14px;
+      }
+
+      .model-popup-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .model-popup-head h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .model-version-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .version-card {
+        min-height: 52px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        padding: 12px;
+        text-align: left;
+        font-weight: 750;
+      }
+
+      .close-popup {
+        width: 34px;
+        height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+      }
+
+      .price-board {
+        display: none;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      body[data-screen="price"] .model-board,
+      body[data-screen="price"] .memory-board {
+        display: none;
+      }
+
+      body[data-screen="price"] .price-board {
+        display: block;
+      }
+
+      .price-shell {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .price-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 34px;
+      }
+
+      .price-title {
+        margin: 0;
+        font-size: 32px;
+        line-height: 1.12;
+      }
+
+      .price-subtitle {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 750;
+      }
+
+      .edit-price-button {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: white;
+        border-radius: 8px;
+        min-height: 32px;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .price-focus {
+        display: grid;
+        place-items: center;
+        min-height: 42vh;
+        text-align: center;
+      }
+
+      .average-price-label {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .average-price {
+        margin-top: 8px;
+        font-size: clamp(48px, 10vw, 92px);
+        line-height: 0.98;
+        font-weight: 850;
+        color: var(--accent);
+      }
+
+      .price-range {
+        margin-top: 22px;
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+
+      .price-range-item span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 5px;
+      }
+
+      .price-range-item strong {
+        display: block;
+        font-size: 26px;
+        line-height: 1.1;
+      }
+
+      @media (max-width: 720px) {
+        .price-topbar {
+          align-items: start;
+        }
+
+        .price-title {
+        margin: 0;
+        font-size: 32px;
+        line-height: 1.12;
+      }
+
+      .edit-board {
+        display: none;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      body[data-screen="edit"] .model-board,
+      body[data-screen="edit"] .memory-board,
+      body[data-screen="edit"] .price-board {
+        display: none;
+      }
+
+      body[data-screen="edit"] .edit-board {
+        display: block;
+      }
+
+      .edit-shell {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .edit-title {
+        margin: 0;
+        font-size: 32px;
+        line-height: 1.12;
+      }
+
+      .edit-memory-title {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 20px;
+        font-weight: 750;
+      }
+
+      .price-input-area {
+        margin-top: 28px;
+        width: 100%;
+        min-height: 260px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        padding: 16px;
+        font-size: 24px;
+        line-height: 1.45;
+        resize: vertical;
+      }
+
+      .done-button {
+        margin-top: 14px;
+        width: 100%;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: white;
+        border-radius: 8px;
+        min-height: 46px;
+        padding: 10px 14px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 720px) {
+        .price-title,
+        .edit-title {
+          font-size: 27px;
+        }
+
+        .price-subtitle,
+        .edit-memory-title {
+          font-size: 18px;
+        }
+
+        .price-input-area {
+          min-height: 220px;
+          font-size: 22px;
+        }
+      }
+
+      .price-topbar > div {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .price-count {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .price-count strong {
+        margin-left: 6px;
+        color: var(--ink);
+        font-size: 18px;
+      }
+
+      .edit-back {
+        margin-bottom: 18px;
+      }
+
+      .price-actions-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 22px;
+      }
+
+      .price-heading {
+        margin-bottom: 28px;
+      }
+
+      /* Hard screen isolation: exactly one page is visible at a time. */
+      body[data-screen] .model-board,
+      body[data-screen] .memory-board,
+      body[data-screen] .price-board,
+      body[data-screen] .edit-board,
+      body[data-screen] .dashboard,
+      body[data-screen] .topbar,
+      body[data-screen] .sidebar {
+        display: none !important;
+      }
+
+      body[data-screen="models"] .model-board,
+      body[data-screen="memory"] .memory-board,
+      body[data-screen="price"] .price-board,
+      body[data-screen="edit"] .edit-board {
+        display: block !important;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">IP</div>
+          <div>
+            <strong>iPhone Planner</strong>
+            <span>личный учет перепродажи</span>
+          </div>
+        </div>
+
+        <nav class="model-list" id="modelList" aria-label="Модели iPhone"></nav>
+
+        <div class="side-note">
+          Данные вводятся вручную после просмотра объявлений. Пока это каркас: мы сможем добавить поставщиков, сделки, расходы, фото, статусы и историю цен.
+        </div>
+      </aside>
+
+      <main>
+        <div class="topbar">
+          <div>
+            <h1 id="pageTitle">iPhone 11 Pro</h1>
+            <p class="subtitle">Сравнивай варианты устройства, фиксируй среднюю цену рынка и сразу видь ориентир для закупки.</p>
+          </div>
+          <div class="primary-actions">
+            <button class="btn" id="exportBtn" type="button" title="Скачать данные">Скачать JSON</button>
+            <button class="btn danger" id="resetBtn" type="button" title="Вернуть стартовый набор">Сбросить</button>
+          </div>
+        </div>
+
+        <section class="panel model-board">
+          <div class="panel-head">
+            <h2>Модели iPhone</h2>
+          </div>
+          <div class="panel-body">
+            <div class="model-grid" id="modelGrid" aria-label="Все модели iPhone"></div>
+          </div>
+        </section>
+
+        <section class="panel memory-board" aria-label="Память выбранной модели">
+          <div class="panel-body">
+            <div class="memory-topbar">
+              <button class="back-button" id="backToModelsBtn" type="button">Назад</button>
+              <h2 class="memory-title" id="memoryTitle">iPhone</h2>
+            </div>
+            <div class="memory-grid" id="memoryGrid" aria-label="Объем памяти"></div>
+          </div>
+        </section>
+
+        <section class="panel price-board" aria-label="Цены выбранного варианта">
+          <div class="panel-body">
+            <div class="price-shell">
+              <div class="price-actions-row">
+                <button class="back-button" id="backToMemoryBtn" type="button">Назад</button>
+                <button class="edit-price-button" id="editPriceBtn" type="button">Редактировать</button>
+              </div>
+
+              <div class="price-heading">
+                <h2 class="price-title" id="priceTitle">iPhone</h2>
+                <span class="price-subtitle" id="priceMemoryTitle">128 ГБ</span>
+              </div>
+
+              <div class="price-focus">
+                <div>
+                  <div class="average-price-label">Средняя цена</div>
+                  <div class="average-price" id="averagePriceValue">0 ₽</div>
+                  <div class="price-count"><span>В расчете</span><strong id="priceCountValue">0</strong></div>
+                  <div class="price-range">
+                    <div class="price-range-item">
+                      <span>Минимальная</span>
+                      <strong id="minPriceValue">0 ₽</strong>
+                    </div>
+                    <div class="price-range-item">
+                      <span>Максимальная</span>
+                      <strong id="maxPriceValue">0 ₽</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel edit-board" aria-label="Редактирование цен">
+          <div class="panel-body">
+            <div class="edit-shell">
+              <button class="back-button edit-back" id="backToPriceBtn" type="button">Назад</button>
+              <h2 class="edit-title" id="editTitle">iPhone</h2>
+              <span class="edit-memory-title" id="editMemoryTitle">128 ГБ</span>
+              <textarea class="price-input-area" id="priceNumbersInput" inputmode="decimal" placeholder="9 10 12 9 5 7 13 4.5 6 8"></textarea>
+              <button class="done-button" id="donePriceBtn" type="button">Готово</button>
+            </div>
+          </div>
+        </section>
+        <section class="dashboard">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Варианты и рыночные цены</h2>
+              <button class="btn primary" id="newVariantBtn" type="button">Добавить вариант</button>
+            </div>
+            <div class="panel-body">
+              <div class="filters">
+                <label>
+                  Память
+                  <select id="storageFilter"></select>
+                </label>
+                <label>
+                  SIM
+                  <select id="simFilter"></select>
+                </label>
+                <label>
+                  Минимум АКБ
+                  <input id="batteryFilter" type="number" min="0" max="100" value="0">
+                </label>
+                <label>
+                  Поиск
+                  <input id="searchInput" type="search" placeholder="состояние, заметка">
+                </label>
+              </div>
+
+              <div id="tableMount"></div>
+            </div>
+          </div>
+
+          <aside class="panel">
+            <div class="panel-head">
+              <h2 id="formTitle">Новый вариант</h2>
+            </div>
+            <div class="panel-body">
+              <form id="variantForm" class="form-grid">
+                <input id="variantId" type="hidden">
+                <label>
+                  Модель
+                  <select id="modelInput"></select>
+                </label>
+                <label>
+                  Память
+                  <select id="storageInput">
+                    <option>64 ГБ</option>
+                    <option>128 ГБ</option>
+                    <option>256 ГБ</option>
+                    <option>512 ГБ</option>
+                    <option>1 ТБ</option>
+                  </select>
+                </label>
+                <label>
+                  SIM
+                  <select id="simInput">
+                    <option>1 SIM + eSIM</option>
+                    <option>2 nano-SIM</option>
+                    <option>eSIM only</option>
+                  </select>
+                </label>
+                <label>
+                  АКБ, %
+                  <input id="batteryInput" type="number" min="0" max="100" value="85">
+                </label>
+                <label>
+                  Состояние
+                  <select id="conditionInput">
+                    <option>Отличное</option>
+                    <option>Хорошее</option>
+                    <option>Среднее</option>
+                    <option>Под ремонт</option>
+                  </select>
+                </label>
+                <label>
+                  Средняя цена, ₽
+                  <input id="marketPriceInput" type="number" min="0" step="500" value="32000">
+                </label>
+                <label>
+                  Желаемая маржа, ₽
+                  <input id="marginInput" type="number" min="0" step="500" value="5000">
+                </label>
+                <label class="wide">
+                  Заметки
+                  <textarea id="notesInput" placeholder="Например: чаще встречается без коробки, важно проверять Face ID"></textarea>
+                </label>
+                <button class="btn primary wide" type="submit">Сохранить вариант</button>
+              </form>
+
+              <div class="profit-line" style="margin-top: 18px;">
+                <label>
+                  Ориентир закупки
+                  <output id="targetOutput">27 000 ₽</output>
+                </label>
+              </div>
+
+              <div class="summary-grid" style="margin-top: 18px;">
+                <div class="metric">
+                  <span>Средняя цена модели</span>
+                  <strong id="avgMetric">0 ₽</strong>
+                </div>
+                <div class="metric">
+                  <span>Вариантов</span>
+                  <strong id="countMetric">0</strong>
+                </div>
+              </div>
+
+              <p class="footer-note">Логика простая: средняя цена рынка минус желаемая маржа. Позже добавим поправки на ремонт, доставку, торг и риск.</p>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+
+    <div class="model-popup" id="modelPopup" aria-hidden="true">
+      <div class="model-popup-panel" role="dialog" aria-modal="true" aria-labelledby="modelPopupTitle">
+        <div class="model-popup-head">
+          <h2 id="modelPopupTitle">iPhone</h2>
+          <button class="close-popup" id="closeModelPopupBtn" type="button" title="Закрыть">×</button>
+        </div>
+        <div class="model-version-list" id="modelVersionList"></div>
+      </div>
+    </div>
+    <script>
+      const STORAGE_KEY = "iphone-resale-planner-v4";
+
+      const initialState = {
+        selectedModel: "iPhone 11 Pro",
+        models: [
+          "iPhone 11",
+          "iPhone 11 Pro",
+          "iPhone 11 Pro Max",
+          "iPhone 12 mini",
+          "iPhone 12",
+          "iPhone 12 Pro",
+          "iPhone 12 Pro Max",
+          "iPhone 13 mini",
+          "iPhone 13",
+          "iPhone 13 Pro",
+          "iPhone 13 Pro Max",
+          "iPhone 14",
+          "iPhone 14 Plus",
+          "iPhone 14 Pro",
+          "iPhone 14 Pro Max",
+          "iPhone 15",
+          "iPhone 15 Plus",
+          "iPhone 15 Pro",
+          "iPhone 15 Pro Max",
+          "iPhone 16e",
+          "iPhone 16",
+          "iPhone 16 Plus",
+          "iPhone 16 Pro",
+          "iPhone 16 Pro Max",
+          "iPhone 17",
+          "iPhone Air",
+          "iPhone 17e",
+          "iPhone 17 Pro",
+          "iPhone 17 Pro Max"
+        ],
+        priceObservations: {},
+        variants: [
+          {
+            id: crypto.randomUUID(),
+            model: "iPhone 11 Pro",
+            storage: "64 ГБ",
+            sim: "1 SIM + eSIM",
+            battery: 86,
+            condition: "Хорошее",
+            marketPrice: 30000,
+            margin: 5000,
+            notes: "Базовый ориентир. Проверять Face ID, True Tone и замену экрана."
+          },
+          {
+            id: crypto.randomUUID(),
+            model: "iPhone 11 Pro",
+            storage: "256 ГБ",
+            sim: "1 SIM + eSIM",
+            battery: 88,
+            condition: "Отличное",
+            marketPrice: 36000,
+            margin: 6000,
+            notes: "Выше спрос, если полный комплект и аккуратный корпус."
+          },
+          {
+            id: crypto.randomUUID(),
+            model: "iPhone 11",
+            storage: "128 ГБ",
+            sim: "2 nano-SIM",
+            battery: 84,
+            condition: "Хорошее",
+            marketPrice: 26000,
+            margin: 4500,
+            notes: "Две SIM может быть плюсом для части покупателей."
+          }
+        ]
+      };
+
+      let state = loadState();
+      let currentScreen = "models";
+      let selectedMemory = "128 ГБ";
+      const memoryOptions = ["128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ"];
+      const modelFamilies = [
+        { title: "iPhone 11", models: ["iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max"] },
+        { title: "iPhone 12", models: ["iPhone 12 mini", "iPhone 12", "iPhone 12 Pro", "iPhone 12 Pro Max"] },
+        { title: "iPhone 13", models: ["iPhone 13 mini", "iPhone 13", "iPhone 13 Pro", "iPhone 13 Pro Max"] },
+        { title: "iPhone 14", models: ["iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max"] },
+        { title: "iPhone 15", models: ["iPhone 15", "iPhone 15 Plus", "iPhone 15 Pro", "iPhone 15 Pro Max"] },
+        { title: "iPhone 16", models: ["iPhone 16e", "iPhone 16", "iPhone 16 Plus", "iPhone 16 Pro", "iPhone 16 Pro Max"] },
+        { title: "iPhone 17", models: ["iPhone 17", "iPhone Air", "iPhone 17e", "iPhone 17 Pro", "iPhone 17 Pro Max"] }
+      ];
+      let activeFamily = modelFamilies[0];
+
+      const els = {
+        modelBoard: document.querySelector(".model-board"),
+        memoryBoard: document.querySelector(".memory-board"),
+        priceBoard: document.querySelector(".price-board"),
+        editBoard: document.querySelector(".edit-board"),
+        modelList: document.querySelector("#modelList"),
+        modelGrid: document.querySelector("#modelGrid"),
+        modelPopup: document.querySelector("#modelPopup"),
+        modelPopupTitle: document.querySelector("#modelPopupTitle"),
+        modelVersionList: document.querySelector("#modelVersionList"),
+        closeModelPopupBtn: document.querySelector("#closeModelPopupBtn"),
+        memoryGrid: document.querySelector("#memoryGrid"),
+        memoryTitle: document.querySelector("#memoryTitle"),
+        backToModelsBtn: document.querySelector("#backToModelsBtn"),
+        priceTitle: document.querySelector("#priceTitle"),
+        priceMemoryTitle: document.querySelector("#priceMemoryTitle"),
+        averagePriceValue: document.querySelector("#averagePriceValue"),
+        priceCountValue: document.querySelector("#priceCountValue"),
+        minPriceValue: document.querySelector("#minPriceValue"),
+        maxPriceValue: document.querySelector("#maxPriceValue"),
+        backToMemoryBtn: document.querySelector("#backToMemoryBtn"),
+        editPriceBtn: document.querySelector("#editPriceBtn"),
+        editTitle: document.querySelector("#editTitle"),
+        editMemoryTitle: document.querySelector("#editMemoryTitle"),
+        priceNumbersInput: document.querySelector("#priceNumbersInput"),
+        donePriceBtn: document.querySelector("#donePriceBtn"),
+        backToPriceBtn: document.querySelector("#backToPriceBtn"),
+        pageTitle: document.querySelector("#pageTitle"),
+        tableMount: document.querySelector("#tableMount"),
+        storageFilter: document.querySelector("#storageFilter"),
+        simFilter: document.querySelector("#simFilter"),
+        batteryFilter: document.querySelector("#batteryFilter"),
+        searchInput: document.querySelector("#searchInput"),
+        variantForm: document.querySelector("#variantForm"),
+        variantId: document.querySelector("#variantId"),
+        modelInput: document.querySelector("#modelInput"),
+        storageInput: document.querySelector("#storageInput"),
+        simInput: document.querySelector("#simInput"),
+        batteryInput: document.querySelector("#batteryInput"),
+        conditionInput: document.querySelector("#conditionInput"),
+        marketPriceInput: document.querySelector("#marketPriceInput"),
+        marginInput: document.querySelector("#marginInput"),
+        notesInput: document.querySelector("#notesInput"),
+        formTitle: document.querySelector("#formTitle"),
+        targetOutput: document.querySelector("#targetOutput"),
+        avgMetric: document.querySelector("#avgMetric"),
+        countMetric: document.querySelector("#countMetric"),
+        newVariantBtn: document.querySelector("#newVariantBtn"),
+        exportBtn: document.querySelector("#exportBtn"),
+        resetBtn: document.querySelector("#resetBtn")
+      };
+
+      function loadState() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return structuredClone(initialState);
+
+        try {
+          const parsed = JSON.parse(saved);
+          if (!parsed.priceObservations) parsed.priceObservations = {};
+          return parsed;
+        } catch {
+          return structuredClone(initialState);
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function money(value) {
+        return new Intl.NumberFormat("ru-RU").format(Number(value || 0)) + " ₽";
+      }
+
+      function currentModelVariants() {
+        return state.variants.filter((item) => item.model === state.selectedModel);
+      }
+
+      function filteredVariants() {
+        const storage = els.storageFilter.value;
+        const sim = els.simFilter.value;
+        const minBattery = Number(els.batteryFilter.value || 0);
+        const search = els.searchInput.value.trim().toLowerCase();
+
+        return currentModelVariants().filter((item) => {
+          const matchesStorage = storage === "Все" || item.storage === storage;
+          const matchesSim = sim === "Все" || item.sim === sim;
+          const matchesBattery = item.battery >= minBattery;
+          const haystack = [item.condition, item.notes, item.storage, item.sim].join(" ").toLowerCase();
+          const matchesSearch = !search || haystack.includes(search);
+          return matchesStorage && matchesSim && matchesBattery && matchesSearch;
+        });
+      }
+
+      function renderModels() {
+        const selectedFormModel = els.variantId.value ? els.modelInput.value : state.selectedModel;
+
+        els.modelList.innerHTML = state.models.map((model) => {
+          const count = state.variants.filter((item) => item.model === model).length;
+          const selected = model === state.selectedModel ? "true" : "false";
+          return `
+            <button class="model-button" type="button" data-model="${model}" aria-current="${selected}">
+              <span>${model}</span>
+              <small>${count}</small>
+            </button>
+          `;
+        }).join("");
+
+                        els.modelGrid.innerHTML = modelFamilies.map((family) => `
+          <button class="model-card" type="button" data-family="${family.title}">
+            <strong>${family.title}</strong>
+          </button>
+        `).join("");
+
+        els.modelInput.innerHTML = state.models.map((model) => `<option>${model}</option>`).join("");
+        els.modelInput.value = selectedFormModel;
+      }
+
+      function openModelPopup(familyTitle) {
+        activeFamily = modelFamilies.find((family) => family.title === familyTitle) || modelFamilies[0];
+        els.modelPopupTitle.textContent = activeFamily.title;
+        els.modelVersionList.innerHTML = activeFamily.models.map((model) => `
+          <button class="version-card" type="button" data-model="${model}">${model}</button>
+        `).join("");
+        els.modelPopup.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModelPopup() {
+        els.modelPopup.setAttribute("aria-hidden", "true");
+      }
+      function renderMemoryOptions() {
+        els.memoryTitle.textContent = state.selectedModel;
+        els.memoryGrid.innerHTML = memoryOptions.map((memory) => `
+          <button class="memory-card" type="button" data-memory="${memory}">
+            <strong>${memory}</strong>
+          </button>
+        `).join("");
+      }
+      function priceKey(model = state.selectedModel, memory = selectedMemory) {
+        return `${model}__${memory}`;
+      }
+
+      function currentPriceValues() {
+        return state.priceObservations[priceKey()] || [];
+      }
+
+      function numbersToInput(values) {
+        return values.map((value) => String(value / 1000).replace(".", ",")).join(" ");
+      }
+
+      function parsePriceInput(input) {
+        return input
+          .replace(/,/g, ".")
+          .split(/\s+/)
+          .map((part) => part.trim())
+          .filter(Boolean)
+          .map(Number)
+          .filter((value) => Number.isFinite(value) && value > 0)
+          .map((value) => Math.round(value * 1000));
+      }
+      function renderPriceScreen() {
+        const prices = currentPriceValues();
+        const min = prices.length ? Math.min(...prices) : 0;
+        const max = prices.length ? Math.max(...prices) : 0;
+        const avg = prices.length ? Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length / 100) * 100 : 0;
+
+        els.priceTitle.textContent = state.selectedModel;
+        els.priceMemoryTitle.textContent = selectedMemory;
+        els.averagePriceValue.textContent = money(avg);
+        els.priceCountValue.textContent = prices.length;
+        els.minPriceValue.textContent = money(min);
+        els.maxPriceValue.textContent = money(max);
+      }
+
+      function renderEditScreen() {
+        els.editTitle.textContent = state.selectedModel;
+        els.editMemoryTitle.textContent = selectedMemory;
+        if (currentScreen === "edit" && document.activeElement !== els.priceNumbersInput) {
+          els.priceNumbersInput.value = numbersToInput(currentPriceValues());
+        }
+      }
+
+      function renderFilters() {
+        const variants = currentModelVariants();
+        const storages = ["Все", ...new Set(variants.map((item) => item.storage))];
+        const sims = ["Все", ...new Set(variants.map((item) => item.sim))];
+
+        const storageValue = els.storageFilter.value || "Все";
+        const simValue = els.simFilter.value || "Все";
+
+        els.storageFilter.innerHTML = storages.map((item) => `<option>${item}</option>`).join("");
+        els.simFilter.innerHTML = sims.map((item) => `<option>${item}</option>`).join("");
+
+        els.storageFilter.value = storages.includes(storageValue) ? storageValue : "Все";
+        els.simFilter.value = sims.includes(simValue) ? simValue : "Все";
+      }
+
+      function renderTable() {
+        const variants = filteredVariants();
+
+        if (!variants.length) {
+          els.tableMount.innerHTML = `<div class="empty">Пока нет вариантов под выбранные фильтры.</div>`;
+          return;
+        }
+
+        els.tableMount.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 120px;">Память</th>
+                <th style="width: 150px;">SIM</th>
+                <th style="width: 90px;">АКБ</th>
+                <th style="width: 130px;">Состояние</th>
+                <th style="width: 130px;">Рынок</th>
+                <th style="width: 140px;">Закупка</th>
+                <th>Заметки</th>
+                <th style="width: 90px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${variants.map((item) => `
+                <tr>
+                  <td data-label="Память"><span class="chip">${item.storage}</span></td>
+                  <td data-label="SIM">${item.sim}</td>
+                  <td data-label="АКБ">${item.battery}%</td>
+                  <td data-label="Состояние">${item.condition}</td>
+                  <td data-label="Рынок"><span class="price">${money(item.marketPrice)}</span></td>
+                  <td data-label="Закупка">${money(item.marketPrice - item.margin)}</td>
+                  <td data-label="Заметки">${item.notes || "Без заметок"}</td>
+                  <td data-label="Действия">
+                    <div class="row-actions">
+                      <button class="icon-btn" type="button" data-edit="${item.id}" title="Редактировать">✎</button>
+                      <button class="icon-btn" type="button" data-delete="${item.id}" title="Удалить">×</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderSummary() {
+        const variants = currentModelVariants();
+        const average = variants.length
+          ? variants.reduce((sum, item) => sum + Number(item.marketPrice), 0) / variants.length
+          : 0;
+
+        els.avgMetric.textContent = money(Math.round(average / 100) * 100);
+        els.countMetric.textContent = variants.length;
+      }
+
+      function syncScreens() {
+        const screens = {
+          models: els.modelBoard,
+          memory: els.memoryBoard,
+          price: els.priceBoard,
+          edit: els.editBoard
+        };
+
+        Object.entries(screens).forEach(([screen, element]) => {
+          const active = screen === currentScreen;
+          element.hidden = !active;
+          element.style.display = active ? "block" : "none";
+        });
+      }
+      function render() {
+        document.body.dataset.screen = currentScreen;
+        syncScreens();
+        els.pageTitle.textContent = state.selectedModel;
+        renderModels();
+        renderMemoryOptions();
+        renderPriceScreen();
+        renderEditScreen();
+        renderFilters();
+        renderTable();
+        renderSummary();
+        saveState();
+      }
+
+      function resetForm() {
+        els.formTitle.textContent = "Новый вариант";
+        els.variantId.value = "";
+        els.modelInput.value = state.selectedModel;
+        els.storageInput.value = "64 ГБ";
+        els.simInput.value = "1 SIM + eSIM";
+        els.batteryInput.value = 85;
+        els.conditionInput.value = "Хорошее";
+        els.marketPriceInput.value = 32000;
+        els.marginInput.value = 5000;
+        els.notesInput.value = "";
+        updateTarget();
+      }
+
+      function updateTarget() {
+        const market = Number(els.marketPriceInput.value || 0);
+        const margin = Number(els.marginInput.value || 0);
+        els.targetOutput.textContent = money(Math.max(0, market - margin));
+      }
+
+      function editVariant(id) {
+        const item = state.variants.find((variant) => variant.id === id);
+        if (!item) return;
+
+        els.formTitle.textContent = "Редактирование";
+        els.variantId.value = item.id;
+        els.modelInput.value = item.model;
+        els.storageInput.value = item.storage;
+        els.simInput.value = item.sim;
+        els.batteryInput.value = item.battery;
+        els.conditionInput.value = item.condition;
+        els.marketPriceInput.value = item.marketPrice;
+        els.marginInput.value = item.margin;
+        els.notesInput.value = item.notes;
+        updateTarget();
+      }
+
+      function selectFamilyFromButton(event) {
+        const button = event.target.closest("[data-family]");
+        if (!button) return;
+        openModelPopup(button.dataset.family);
+      }
+
+      function selectModelVersion(event) {
+        const button = event.target.closest("[data-model]");
+        if (!button) return;
+        state.selectedModel = button.dataset.model;
+        currentScreen = "memory";
+        closeModelPopup();
+        resetForm();
+        render();
+      }
+
+      els.modelList.addEventListener("click", selectModelVersion);
+      els.modelGrid.addEventListener("click", selectFamilyFromButton);
+      els.modelVersionList.addEventListener("click", selectModelVersion);
+      els.closeModelPopupBtn.addEventListener("click", closeModelPopup);
+      els.modelPopup.addEventListener("click", (event) => {
+        if (event.target === els.modelPopup) closeModelPopup();
+      });
+      els.backToModelsBtn.addEventListener("click", () => {
+        currentScreen = "models";
+        render();
+      });
+      els.backToMemoryBtn.addEventListener("click", () => {
+        currentScreen = "memory";
+        render();
+      });
+      els.backToPriceBtn.addEventListener("click", () => {
+        currentScreen = "price";
+        render();
+      });
+
+      function selectMemoryOption(event) {
+        const button = event.target.closest("[data-memory]");
+        if (!button) return;
+        selectedMemory = button.dataset.memory;
+        currentScreen = "price";
+        render();
+      }
+
+      els.memoryGrid.addEventListener("click", selectMemoryOption);
+      els.editPriceBtn.addEventListener("click", () => {
+        currentScreen = "edit";
+        render();
+      });
+      els.donePriceBtn.addEventListener("click", () => {
+        state.priceObservations[priceKey()] = parsePriceInput(els.priceNumbersInput.value);
+        currentScreen = "price";
+        render();
+      });
+
+      [els.storageFilter, els.simFilter, els.batteryFilter, els.searchInput].forEach((field) => {
+        field.addEventListener("input", renderTable);
+      });
+
+      [els.marketPriceInput, els.marginInput].forEach((field) => {
+        field.addEventListener("input", updateTarget);
+      });
+
+      els.newVariantBtn.addEventListener("click", resetForm);
+
+      els.variantForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const payload = {
+          id: els.variantId.value || crypto.randomUUID(),
+          model: els.modelInput.value,
+          storage: els.storageInput.value,
+          sim: els.simInput.value,
+          battery: Number(els.batteryInput.value || 0),
+          condition: els.conditionInput.value,
+          marketPrice: Number(els.marketPriceInput.value || 0),
+          margin: Number(els.marginInput.value || 0),
+          notes: els.notesInput.value.trim()
+        };
+
+        const existingIndex = state.variants.findIndex((item) => item.id === payload.id);
+        if (existingIndex >= 0) {
+          state.variants[existingIndex] = payload;
+        } else {
+          state.variants.push(payload);
+        }
+
+        state.selectedModel = payload.model;
+        resetForm();
+        render();
+      });
+
+      els.tableMount.addEventListener("click", (event) => {
+        const editButton = event.target.closest("[data-edit]");
+        const deleteButton = event.target.closest("[data-delete]");
+
+        if (editButton) {
+          editVariant(editButton.dataset.edit);
+        }
+
+        if (deleteButton) {
+          state.variants = state.variants.filter((item) => item.id !== deleteButton.dataset.delete);
+          render();
+        }
+      });
+
+      els.exportBtn.addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "iphone-resale-data.json";
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      els.resetBtn.addEventListener("click", () => {
+        state = structuredClone(initialState);
+        localStorage.removeItem(STORAGE_KEY);
+        resetForm();
+        render();
+      });
+
+      resetForm();
+      render();
+
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        navigator.serviceWorker.register("sw.js").catch(() => {});
+      }
+    </script>
+  </body>
+</html>
+
+
+
