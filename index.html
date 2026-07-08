@@ -939,6 +939,41 @@
       [hidden] {
         display: none !important;
       }
+
+      /* iPhone touch fixes */
+      @media (max-width: 720px) {
+        main {
+          padding: 16px;
+        }
+
+        .model-grid,
+        .memory-grid,
+        .model-version-list {
+          width: 100%;
+          max-width: none;
+          gap: 12px;
+        }
+
+        .model-card,
+        .memory-card,
+        .version-card {
+          width: 100%;
+          min-height: 64px;
+          padding: 16px;
+          font-size: 18px;
+        }
+
+        .model-card strong,
+        .memory-card strong,
+        .version-card {
+          font-size: 18px;
+        }
+
+        .price-input-area {
+          font-size: 24px;
+          min-height: 280px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1030,7 +1065,7 @@
               <button class="back-button edit-back" id="backToPriceBtn" type="button">Назад</button>
               <h2 class="edit-title" id="editTitle">iPhone</h2>
               <span class="edit-memory-title" id="editMemoryTitle">128 ГБ</span>
-              <textarea class="price-input-area" id="priceNumbersInput" inputmode="decimal" placeholder="9 10 12 9 5 7 13 4.5 6 8"></textarea>
+              <textarea class="price-input-area" id="priceNumbersInput" placeholder="9 10 12 9 5 7 13 4.5 6 8"></textarea>
               <button class="done-button" id="donePriceBtn" type="button">Готово</button>
             </div>
           </div>
