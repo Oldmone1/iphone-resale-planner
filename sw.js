@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = "iphone-resale-planner-v2";
+﻿const CACHE_NAME = "iphone-resale-planner-v3";
 const APP_FILES = [
   "./",
   "./index.html",

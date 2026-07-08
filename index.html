@@ -1192,8 +1192,12 @@
         <div class="model-version-list" id="modelVersionList"></div>
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       const STORAGE_KEY = "iphone-resale-planner-v4";
+      const SUPABASE_URL = "https://mgaxdcgshyjihmmxowcy.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_C0vccxkA674zz9fM_IOcWw_BMOovhkc";
+      const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
       const initialState = {
         selectedModel: "iPhone 11 Pro",
@@ -1350,6 +1354,37 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       }
 
+
+      async function loadCloudPrices() {
+        if (!supabaseClient) return;
+
+        const { data, error } = await supabaseClient
+          .from("price_observations")
+          .select("id, prices");
+
+        if (error || !Array.isArray(data)) return;
+
+        data.forEach((row) => {
+          if (row.id && Array.isArray(row.prices)) {
+            state.priceObservations[row.id] = row.prices;
+          }
+        });
+        saveState();
+      }
+
+      async function saveCloudPrices(model, memory, prices) {
+        if (!supabaseClient) return;
+
+        await supabaseClient
+          .from("price_observations")
+          .upsert({
+            id: priceKey(model, memory),
+            model,
+            memory,
+            prices,
+            updated_at: new Date().toISOString()
+          });
+      }
       function money(value) {
         return new Intl.NumberFormat("ru-RU").format(Number(value || 0)) + " ₽";
       }
@@ -1646,8 +1681,11 @@
         currentScreen = "edit";
         render();
       });
-      els.donePriceBtn.addEventListener("click", () => {
-        state.priceObservations[priceKey()] = parsePriceInput(els.priceNumbersInput.value);
+      els.donePriceBtn.addEventListener("click", async () => {
+        const prices = parsePriceInput(els.priceNumbersInput.value);
+        state.priceObservations[priceKey()] = prices;
+        saveState();
+        await saveCloudPrices(state.selectedModel, selectedMemory, prices);
         currentScreen = "price";
         render();
       });
@@ -1722,9 +1760,10 @@
 
       resetForm();
       render();
+      loadCloudPrices().then(render);
 
       if ("serviceWorker" in navigator && location.protocol !== "file:") {
-        navigator.serviceWorker.register("sw.js?v=2").then((registration) => registration.update()).catch(() => {});
+        navigator.serviceWorker.register("sw.js?v=3").then((registration) => registration.update()).catch(() => {});
       }
     </script>
   </body>
